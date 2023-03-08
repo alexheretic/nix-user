@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+## Updates all installed packages.
+## Usage: update [--check]
+set -euo pipefail
+
+# dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+bold='\e[1m'
+dim='\e[2m'
+reset='\e[0m'
+
+print_current() {
+    echo 'with import <nixpkgs> {}; ['
+    # note: sed for name corrections
+    # TODO lookup proper names somehow?
+    nix-env -q --json | jq -r '.[] | "  " + .pname' | sort \
+        | sed 's/nss-cacert/cacert/' \
+        | sed 's/pkg-config-wrapper/pkg-config/' \
+        | sed 's/password-store/pass/' \
+        | sed 's/gnome-tweaks/gnome.gnome-tweaks/'
+    echo ']'
+}
+
+echo -e "$bold==> nix-channel --update$reset"
+nix-channel --update
+
+echo -e "$bold==> checking for updates$reset"
+current=$(mktemp)
+trap 'rm -f "$current"' EXIT
+
+print_current > "$current"
+
+updates=$(diff --suppress-common-lines --side-by-side <(nix-env -qaf "$current") <(nix-env -q) \
+            | sed -E 's#\s*\|\s*#  ->  #' \
+            || true)
+
+if [ -z "$updates" ]; then
+    echo "no updates"
+    exit
+else
+    echo "------"
+    echo "$updates"
+    echo "------"
+fi
+
+if [ -z "${1:-}" ]; then
+    echo -e "$bold==> installing updates$reset"
+    nix-env -irf "$current"
+else
+    echo -e "${dim}Run without args to install updates$reset"
+    exit
+fi
