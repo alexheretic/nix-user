@@ -3,20 +3,17 @@
 ## Usage: update [--check]
 set -euo pipefail
 
-# dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 bold='\e[1m'
 dim='\e[2m'
 reset='\e[0m'
 
 print_current() {
     echo 'with import <nixpkgs> {}; ['
-    # note: sed for name corrections
-    # TODO lookup proper names somehow?
-    nix-env -q --json | jq -r '.[] | "  " + .pname' | sort \
-        | sed 's/nss-cacert/cacert/' \
-        | sed 's/pkg-config-wrapper/pkg-config/' \
-        | sed 's/password-store/pass/' \
-        | sed 's/gnome-tweaks/gnome.gnome-tweaks/'
+    nix-env -q --json | jq -r '.[] | .pname' \
+        | xargs -P3 -n1 "$dir/nixpkg-name" \
+        | sed 's/^nixpkgs./  /' \
+        | sort
     echo ']'
 }
 
@@ -28,8 +25,9 @@ current=$(mktemp)
 trap 'rm -f "$current"' EXIT
 
 print_current > "$current"
+current_v=$(nix-env -qaf "$current")
 
-updates=$(diff --suppress-common-lines --side-by-side <(nix-env -qaf "$current") <(nix-env -q) \
+updates=$(diff --suppress-common-lines --side-by-side <(echo "$current_v") <(nix-env -q) \
             | sed -E 's#\s*\|\s*#  ->  #' \
             || true)
 

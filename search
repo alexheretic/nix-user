@@ -7,12 +7,12 @@ dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [[ "${1:-}" == "--refresh" ]]; then
     echo "Refreshing packages..." >&2
-    nix-env -qaP | cut -d' ' -f1 > "$dir/.search-index.txt"
+    nix-env -qaP > "$dir/.search-index.txt"
     wc -l "$dir/.search-index.txt"
     shift
     if [ -z "${1:-}" ]; then exit; fi
 fi
 
-if ! rg -N "^nixpkgs\.$1" "$dir/.search-index.txt"; then
-    rg -N "$1" "$dir/.search-index.txt"
+if ! rg --color=always -N "^nixpkgs\.$1" "$dir/.search-index.txt" | sed -E 's/\s+/ = /'; then
+    rg --color=always -N "$1" "$dir/.search-index.txt" | sed -E 's/\s+/ = /'
 fi

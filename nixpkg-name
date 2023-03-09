@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+## Lookup "nixpkg.name" using a "pname" (e.g. "gnome-shell" -> "nixpkgs.gnome.gnome-shell")
+## Usage: nixpkg-name PNAME
+set -euo pipefail
+
+# TODO escape regex chars? may not need to...
+if ! rg -m1 " $1(-.*)?$" .search-index.txt | cut -d' ' -f1; then
+    echo "No nixpkg name found for $1" >&2
+    exit 1
+fi
