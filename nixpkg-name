@@ -3,8 +3,10 @@
 ## Usage: nixpkg-name PNAME
 set -euo pipefail
 
+dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 # TODO escape regex chars? may not need to...
-if ! rg -m1 " $1(-.*)?$" .search-index.txt | cut -d' ' -f1; then
+if ! rg -m1 " $1(-.*)?$" "$dir"/.search-index.txt | cut -d' ' -f1; then
     echo "No nixpkg name found for $1" >&2
     exit 1
 fi

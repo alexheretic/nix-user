@@ -7,6 +7,13 @@ dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [[ "${1:-}" == "--refresh" ]]; then
     echo "Refreshing packages..." >&2
+    # Uses a lot of ram, check if at least 3G of ram available
+    available_ram_g=$(free -g | rg '^Mem' | tr -s ' ' | cut -d' ' -f7)
+    if [ "$available_ram_g" -lt 3 ]; then
+        echo "Error: Insufficient available ram (${available_ram_g}G < 3G)" >&2
+        exit 1
+    fi
+
     nix-env -qaP > "$dir/.search-index.txt"
     wc -l "$dir/.search-index.txt"
     shift
