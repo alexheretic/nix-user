@@ -26,7 +26,7 @@ Steps to setup on Linux (e.g. Ubuntu 22.04) without root.
         # nix-user mode
         . "$HOME/.nix-profile/etc/profile.d/nix.sh"
         
-        if [[ $(ps --no-header --pid=$PPID --format=comm) != "fish" && -z $BASH_EXECUTION_STRING ]] && type -P fish2 >/dev/null
+        if [[ $(ps --no-header --pid=$PPID --format=comm) != "fish" && -z $BASH_EXECUTION_STRING ]] && type -P fish >/dev/null
         then
             exec fish
         fi
