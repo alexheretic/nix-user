@@ -14,7 +14,6 @@ print_current() {
     nix-env -q --json | jq -r '.[] | .pname' \
         | xargs -P3 -n1 "$dir/nixpkg-name" \
         | sed 's/^nixpkgs./  /' \
-        | rg -v 'protobuf' \
         | sort
     echo ']'
 }
@@ -24,7 +23,7 @@ nix-channel --update
 
 echo -e "$bold==> checking for updates$reset"
 current=$(mktemp)
-trap 'rm -f "$current"' EXIT
+trap 'rm -f "$current" || true' EXIT
 
 print_current > "$current"
 current_v=$(nix-env -qaf "$current")
