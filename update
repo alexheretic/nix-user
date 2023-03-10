@@ -9,10 +9,12 @@ dim='\e[2m'
 reset='\e[0m'
 
 print_current() {
+    # TODO Fix protobuf updating weirdly (currently ignored)
     echo 'with import <nixpkgs> {}; ['
     nix-env -q --json | jq -r '.[] | .pname' \
         | xargs -P3 -n1 "$dir/nixpkg-name" \
         | sed 's/^nixpkgs./  /' \
+        | rg -v 'protobuf' \
         | sort
     echo ']'
 }
@@ -27,7 +29,8 @@ trap 'rm -f "$current"' EXIT
 print_current > "$current"
 current_v=$(nix-env -qaf "$current")
 
-updates=$(diff --suppress-common-lines --side-by-side <(echo "$current_v") <(nix-env -q) \
+# TODO Fix protobuf updating weirdly (currently ignored)
+updates=$(diff --suppress-common-lines --side-by-side <(echo "$current_v") <(nix-env -q | rg -v 'protobuf') \
             | sed -E 's#\s*\|\s*#  ->  #' \
             || true)
 
