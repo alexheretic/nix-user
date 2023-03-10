@@ -9,7 +9,6 @@ dim='\e[2m'
 reset='\e[0m'
 
 print_current() {
-    # TODO Fix protobuf updating weirdly (currently ignored)
     echo 'with import <nixpkgs> {}; ['
     nix-env -q --json | jq -r '.[] | .pname' \
         | xargs -P3 -n1 "$dir/nixpkg-name" \
@@ -43,9 +42,12 @@ else
 fi
 
 if [ -z "${1:-}" ]; then
-    echo -e "$bold==> installing updates$reset"
-    nix-env -irf "$current"
+    echo -en "$bold==> install updates? [yN]$reset "
+    read -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        nix-env -irf "$current"
+    fi
 else
     echo -e "${dim}Run without args to install updates$reset"
-    exit
 fi
