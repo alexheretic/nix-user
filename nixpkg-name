@@ -1,22 +1,52 @@
 #!/usr/bin/env bash
 ## Lookup "nixpkg.name" using a "pname" (e.g. "gnome-shell" -> "nixpkgs.gnome.gnome-shell")
-## Usage: nixpkg-name PNAME
-set -u
+## Usage: 
+##  nixpkg-name PNAME
+##
+## Usage: Override so a PNAME resolves to another nixpkg.name in future calls
+##  nixpkg-name PNAME --resolve NIXPKG_NAME
+set -uo pipefail
 
 dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 dim='\e[2m'
+red='\e[31m'
+bold='\e[1m'
 reset='\e[0m'
 
+pname="$1"
+resolve_idx="$dir"/.nixpkg-name-resolve.txt
+search_idx="$dir"/.search-index.txt
+
+# Call with --resolve will setup a override mapping to handle multiple nixpkg name cases
+if [[ "${2:-}" = "--resolve" ]]; then
+    resolve_pkg_name="$3"
+    if ! rg -qF "$resolve_pkg_name  $pname" "$resolve_idx"; then
+        echo "$resolve_pkg_name  $pname" >> "$resolve_idx"
+    fi
+    echo -e "Setting $bold$pname$reset to resolve to $bold$resolve_pkg_name$reset" >&2
+    exit
+fi
+
+if [ -f "$resolve_idx" ] && resolve_match=$(rg " $pname\$" "$resolve_idx" | tail -n1 | cut -d' ' -f1); then
+    echo "$resolve_match"
+    exit
+fi
+
+if [ ! -f "$search_idx" ]; then
+    echo -e "No search index. Call ${bold}search --refresh$reset" >&2
+    exit 2
+fi
+
 # TODO escape regex chars? may not need to...
-if ! matches=$(rg " $1(-.*)?$" "$dir"/.search-index.txt | cut -d' ' -f1); then
-    echo "No nixpkg name found for $1" >&2
+if ! matches=$(rg " $pname(-.*)?$" "$search_idx" | cut -d' ' -f1); then
+    echo -e "${red}No nixpkg name found for pname $bold$pname$reset" >&2
     exit 1
 fi
 
 n_matches=$(echo "$matches" | wc -l)
 if [ "$n_matches" -gt 1 ]; then
     shortest_match=$(echo "$matches" | awk '{ print length, $0 }' | sort -n | cut -d' ' -f2 | head -n1)
-    echo -e "${dim}Warning: '$1' matches $n_matches nixpkg names. Picking shortest ($shortest_match)$reset" >&2
+    echo -e "${dim}Warning: '$bold$pname$reset$dim' matches $n_matches nixpkg names. Picking shortest ($bold$shortest_match$reset$dim) use --resolve to override.$reset" >&2
     echo "$shortest_match"
 else
     echo "$matches"

@@ -35,9 +35,13 @@ Steps to setup on Linux (e.g. Ubuntu 22.04) without root.
 
 ### Install scripts
 This repo contains some helper scripts for using nix packages.
+
+The main motivation is the poor performance of upstream operations (like search & update) managing _nix-env_ adhoc packages.
+
 ```sh
 git clone https://github.com/alexheretic/nix-user ~/nix
 ```
 
+#### Usage
 * `nix/search [--refresh] PACKAGE_REGEX`
 * `nix/update [--check]`
