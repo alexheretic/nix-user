@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 ## Search through available packages
-## Usage: search [--refresh]
+## Usage: search [--refresh] PACKAGE_REGEX
 set -euo pipefail
 
 dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-if [[ "${1:-}" == "--refresh" ]]; then
+if [[ "${1:-}" == "--refresh" ]] || [ ! -f "$dir/.search-index.txt" ]; then
     echo "Refreshing packages..." >&2
     # Uses a lot of ram, check if at least 3G of ram available
     available_ram_g=$(free -g | rg '^Mem' | tr -s ' ' | cut -d' ' -f7)
