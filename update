@@ -27,8 +27,7 @@ trap 'rm -f "$current" || true' EXIT
 print_current > "$current"
 current_v=$(nix-env -qaf "$current")
 
-# TODO Fix protobuf updating weirdly (currently ignored)
-updates=$(diff --suppress-common-lines --side-by-side <(echo "$current_v") <(nix-env -q | rg -v 'protobuf') \
+updates=$(diff --suppress-common-lines --side-by-side <(echo "$current_v") <(nix-env -q) \
             | sed -E 's#\s*\|\s*#  ->  #' \
             || true)
 
