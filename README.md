@@ -36,7 +36,7 @@ Steps to setup on Linux (e.g. Ubuntu 22.04) without root.
 ### Install scripts
 This repo contains some helper scripts for using nix packages.
 ```sh
-git clone THE_REPO ~/nix
+git clone https://github.com/alexheretic/nix-user ~/nix
 ```
 
 * `nix/search [--refresh] PACKAGE_REGEX`
