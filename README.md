@@ -1,5 +1,5 @@
 # nix packages sans root
-Scripts and info for using nix packages without root access.
+Scripts and info for using nix packages without root access. Install and use nixpkgs instead of using apt or compiling manually.
 
 ## Install
 Steps to setup on Linux (e.g. Ubuntu 22.04) without root.
@@ -45,3 +45,11 @@ git clone https://github.com/alexheretic/nix-user ~/nix
 #### Usage
 * `nix/search [--refresh] PACKAGE_REGEX`
 * `nix/update [--check]`
+
+Use _nix-env_ for installing/uninstalling packages e.g. `nix-env -iA nixpkgs.foo`.
+
+## Issues
+* Using _nix-env_ to search, check for updates & update all packages is **very** slow and memory intensive. The scripts in this repo provide fast alternatives.
+* It can be difficult to use programs inside the nix-root from outside. It's best to try and do everything inside, e.g. install and use nix vscode instead of the ubuntu system version.
+* Graphical apps & daemons can break if the terminal they were started with is exitted.
+* Dynamic link dependency packages (like openssl) don't work by default for compiling. On nix you are intended to use _nix-shell_ and explicitly declare linking dependencies. An alternative is installing such link dependencies on the system or compiling them into $HOME and setting the necessary env vars.
