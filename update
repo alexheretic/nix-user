@@ -25,9 +25,9 @@ current=$(mktemp)
 trap 'rm -f "$current" || true' EXIT
 
 print_current > "$current"
-current_v=$(nix-env -qaf "$current")
+available_v=$(nix-env -qaf "$current")
 
-updates=$(diff --suppress-common-lines --side-by-side <(echo "$current_v") <(nix-env -q) \
+updates=$(diff --suppress-common-lines --side-by-side <(nix-env -q) <(echo "$available_v") \
             | sed -E 's#\s*\|\s*#  ->  #' \
             || true)
 

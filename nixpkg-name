@@ -20,7 +20,7 @@ search_idx="$dir"/.search-index.txt
 # Call with --resolve will setup a override mapping to handle multiple nixpkg name cases
 if [[ "${2:-}" = "--resolve" ]]; then
     resolve_pkg_name="$3"
-    if ! rg -qF "$resolve_pkg_name  $pname" "$resolve_idx"; then
+    if ! rg -qF "$resolve_pkg_name  $pname" "$resolve_idx" 2>/dev/null; then
         echo "$resolve_pkg_name  $pname" >> "$resolve_idx"
     fi
     echo -e "Setting $bold$pname$reset to resolve to $bold$resolve_pkg_name$reset" >&2
